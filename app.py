@@ -5,6 +5,13 @@ import torch
 # Load your model to GPU as a global variable here using the variable name "model"
 def init():
     global model
+    HF_AUTH_TOKEN = os.getenv("HF_AUTH_TOKEN")
+    
+    # this will substitute the default PNDM scheduler for K-LMS  
+    lms = LMSDiscreteScheduler(beta_start=0.00085, beta_end=0.012, beta_schedule="scaled_linear")
+
+    model = StableDiffusionPipeline.from_pretrained("hakurei/waifu-diffusion", scheduler=lms, use_auth_token=HF_AUTH_TOKEN).to("cuda")
+    global model
     
     device = 0 if torch.cuda.is_available() else -1
     model = pipeline('fill-mask', model='hakurei/waifu-diffusion', device=device)
